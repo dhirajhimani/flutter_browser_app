@@ -140,52 +140,38 @@ class TranslationDialog {
 
       final content = extractedContent.toString();
 
-      // Split content into chunks for translation (MLKit has limits)
-      final chunks = <String>[];
-      final lines = content.split('\n\n');
-      String currentChunk = '';
+      // Split content into individual lines/paragraphs for line-by-line translation
+      final originalLines = content
+          .split('\n\n')
+          .where((line) => line.trim().isNotEmpty)
+          .toList();
 
-      for (String line in lines) {
-        if (currentChunk.length + line.length + 2 > 800) {
-          if (currentChunk.isNotEmpty) {
-            chunks.add(currentChunk.trim());
-            currentChunk = '';
-          }
-        }
-        if (currentChunk.isNotEmpty) {
-          currentChunk += '\n\n';
-        }
-        currentChunk += line;
-      }
+      // Translate each line individually
+      final List<Map<String, String>> translatedPairs = [];
 
-      if (currentChunk.isNotEmpty) {
-        chunks.add(currentChunk.trim());
-      }
+      for (int i = 0; i < originalLines.length; i++) {
+        final originalLine = originalLines[i].trim();
+        if (originalLine.isEmpty) continue;
 
-      // Translate all chunks
-      final translatedChunks = <String>[];
-      for (int i = 0; i < chunks.length; i++) {
-        final translatedChunk =
-            await translationService.translateText(chunks[i]);
-        if (translatedChunk != null && translatedChunk.isNotEmpty) {
-          translatedChunks.add(translatedChunk);
-        } else {
-          translatedChunks.add(chunks[i]); // Fallback to original
-        }
+        // Translate the line
+        final translatedLine =
+            await translationService.translateText(originalLine);
+
+        translatedPairs.add({
+          'english': _formatContent(originalLine),
+          'german': _formatContent(translatedLine ?? originalLine),
+        });
 
         // Small delay between translations
-        if (i < chunks.length - 1) {
-          await Future.delayed(const Duration(milliseconds: 200));
+        if (i < originalLines.length - 1) {
+          await Future.delayed(const Duration(milliseconds: 300));
         }
       }
-
-      final translatedContent = translatedChunks.join('\n\n');
 
       // Show the translation dialog
       await _showTranslationResult(
         context: context,
-        originalContent: content,
-        translatedContent: translatedContent,
+        translatedPairs: translatedPairs,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,8 +190,7 @@ class TranslationDialog {
 
   static Future<void> _showTranslationResult({
     required BuildContext context,
-    required String originalContent,
-    required String translatedContent,
+    required List<Map<String, String>> translatedPairs,
   }) async {
     await showDialog(
       context: context,
@@ -234,11 +219,12 @@ class TranslationDialog {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       const Text(
-                        'Translation',
+                        'English ↔ German',
                         style: TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       IconButton(
@@ -256,63 +242,13 @@ class TranslationDialog {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // English Section
-                        const Text(
-                          'English',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.grey[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.grey[300]!),
-                          ),
-                          child: Text(
-                            _formatContent(originalContent),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.6,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
-
-                        const SizedBox(height: 24),
-
-                        // German Section
-                        const Text(
-                          'German',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.blue[50],
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(color: Colors.blue[200]!),
-                          ),
-                          child: Text(
-                            _formatContent(translatedContent),
-                            style: const TextStyle(
-                              fontSize: 16,
-                              height: 1.6,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ),
+                        // Line by line translation pairs
+                        ...translatedPairs
+                            .map((pair) => _buildTranslationPair(
+                                  english: pair['english']!,
+                                  german: pair['german']!,
+                                ))
+                            .toList(),
 
                         const SizedBox(height: 20),
                       ],
@@ -324,6 +260,115 @@ class TranslationDialog {
           ),
         );
       },
+    );
+  }
+
+  static Widget _buildTranslationPair({
+    required String english,
+    required String german,
+  }) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // English text
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.grey[50],
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(8),
+                topRight: Radius.circular(8),
+              ),
+              border: Border.all(color: Colors.grey[300]!),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blue[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'EN',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blue,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  english,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.6,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // German text (connected to English)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(8),
+                bottomRight: Radius.circular(8),
+              ),
+              border: Border.all(color: Colors.blue[200]!),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.orange[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'DE',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  german,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    height: 1.6,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
