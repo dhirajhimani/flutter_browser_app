@@ -19,28 +19,19 @@ class BrowserSettings {
   bool homePageEnabled;
   String customUrlHomePage;
   bool debuggingEnabled;
-  bool adBlockingEnabled;
-  bool popupBlockingEnabled;
-  bool trackingProtectionEnabled;
 
   BrowserSettings(
       {this.searchEngine = GoogleSearchEngine,
       this.homePageEnabled = false,
       this.customUrlHomePage = "",
-      this.debuggingEnabled = false,
-      this.adBlockingEnabled = true,
-      this.popupBlockingEnabled = true,
-      this.trackingProtectionEnabled = true});
+      this.debuggingEnabled = false});
 
   BrowserSettings copy() {
     return BrowserSettings(
         searchEngine: searchEngine,
         homePageEnabled: homePageEnabled,
         customUrlHomePage: customUrlHomePage,
-        debuggingEnabled: debuggingEnabled,
-        adBlockingEnabled: adBlockingEnabled,
-        popupBlockingEnabled: popupBlockingEnabled,
-        trackingProtectionEnabled: trackingProtectionEnabled);
+        debuggingEnabled: debuggingEnabled);
   }
 
   static BrowserSettings? fromMap(Map<String, dynamic>? map) {
@@ -49,10 +40,7 @@ class BrowserSettings {
             searchEngine: SearchEngines[map["searchEngineIndex"]],
             homePageEnabled: map["homePageEnabled"],
             customUrlHomePage: map["customUrlHomePage"],
-            debuggingEnabled: map["debuggingEnabled"],
-            adBlockingEnabled: map["adBlockingEnabled"] ?? true,
-            popupBlockingEnabled: map["popupBlockingEnabled"] ?? true,
-            trackingProtectionEnabled: map["trackingProtectionEnabled"] ?? true)
+            debuggingEnabled: map["debuggingEnabled"])
         : null;
   }
 
@@ -61,10 +49,7 @@ class BrowserSettings {
       "searchEngineIndex": SearchEngines.indexOf(searchEngine),
       "homePageEnabled": homePageEnabled,
       "customUrlHomePage": customUrlHomePage,
-      "debuggingEnabled": debuggingEnabled,
-      "adBlockingEnabled": adBlockingEnabled,
-      "popupBlockingEnabled": popupBlockingEnabled,
-      "trackingProtectionEnabled": trackingProtectionEnabled
+      "debuggingEnabled": debuggingEnabled
     };
   }
 
@@ -107,8 +92,7 @@ class BrowserModel extends ChangeNotifier {
       return;
     }
 
-    final window = await WindowManagerPlus.createWindow(
-        windowModel != null ? [windowModel.id] : null);
+    final window = await WindowManagerPlus.createWindow(windowModel != null ? [windowModel.id] : null);
     if (window != null) {
       if (kDebugMode) {
         print("Window created: $window}");
