@@ -131,8 +131,7 @@ void main(List<String> args) async {
             windowModel!.setCurrentWebViewModel(webViewModel);
             return windowModel;
           },
-          create: (BuildContext context) =>
-              WindowModel(id: null),
+          create: (BuildContext context) => WindowModel(id: null),
         ),
       ],
       child: const FlutterBrowserApp(),
@@ -149,28 +148,30 @@ class FlutterBrowserApp extends StatefulWidget {
 
 class _FlutterBrowserAppState extends State<FlutterBrowserApp>
     with WindowListener {
-
   // https://github.com/pichillilorenzo/window_manager_plus/issues/5
   late final AppLifecycleListener? _appLifecycleListener;
 
   @override
   void initState() {
     super.initState();
-    WindowManagerPlus.current.addListener(this);
-
-    // https://github.com/pichillilorenzo/window_manager_plus/issues/5
-    if (WindowManagerPlus.current.id > 0 && Platform.isMacOS) {
-      _appLifecycleListener = AppLifecycleListener(
-        onStateChange: _handleStateChange,
-      );
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      WindowManagerPlus.current.addListener(this);
+      // https://github.com/pichillilorenzo/window_manager_plus/issues/5
+      if (WindowManagerPlus.current.id > 0 && Platform.isMacOS) {
+        _appLifecycleListener = AppLifecycleListener(
+          onStateChange: _handleStateChange,
+        );
+      }
+    });
   }
 
   void _handleStateChange(AppLifecycleState state) {
     // https://github.com/pichillilorenzo/window_manager_plus/issues/5
-    if (WindowManagerPlus.current.id > 0 && Platform.isMacOS && state == AppLifecycleState.hidden) {
-      SchedulerBinding.instance.handleAppLifecycleStateChanged(
-          AppLifecycleState.inactive);
+    if (WindowManagerPlus.current.id > 0 &&
+        Platform.isMacOS &&
+        state == AppLifecycleState.hidden) {
+      SchedulerBinding.instance
+          .handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     }
   }
 
