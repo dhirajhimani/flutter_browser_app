@@ -13,6 +13,7 @@ import 'package:flutter_browser/models/web_archive_model.dart';
 import 'package:flutter_browser/models/webview_model.dart';
 import 'package:flutter_browser/pages/developers/main.dart';
 import 'package:flutter_browser/pages/settings/main.dart';
+import 'package:flutter_browser/pages/translation_page.dart';
 import 'package:flutter_browser/tab_popup_menu_actions.dart';
 import 'package:flutter_browser/util.dart';
 import 'package:flutter_font_icons/flutter_font_icons.dart';
@@ -1368,9 +1369,14 @@ class _WebViewTabAppBarState extends State<WebViewTabAppBar>
       return;
     }
 
-    await TranslationDialog.show(
-      context: context,
-      webViewController: webViewController,
+    // Navigate to the translation page
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => TranslationPage(
+          webViewController: webViewController,
+        ),
+      ),
     );
   }
 }
