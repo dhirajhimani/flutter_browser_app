@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_browser/main.dart';
 import 'package:flutter_browser/models/webview_model.dart';
 import 'package:flutter_browser/util.dart';
+import 'package:flutter_browser/services/ad_blocking_service.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:path_provider/path_provider.dart';
@@ -162,7 +163,11 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     initialSettings.useOnDownloadStart = true;
     initialSettings.useOnLoadResource = true;
     initialSettings.useShouldOverrideUrlLoading = true;
-    initialSettings.javaScriptCanOpenWindowsAutomatically = true;
+
+    // Configure popup blocking based on settings
+    initialSettings.javaScriptCanOpenWindowsAutomatically =
+        !settings.popupBlockingEnabled;
+
     if (Util.isIOS() || Util.isAndroid()) {
       initialSettings.userAgent =
           "Mozilla/5.0 (Linux; Android 9; LG-H870 Build/PKQ1.190522.001) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/83.0.4103.106 Mobile Safari/537.36";
@@ -171,7 +176,7 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
 
     initialSettings.safeBrowsingEnabled = true;
     initialSettings.disableDefaultErrorPage = true;
-    initialSettings.supportMultipleWindows = true;
+    initialSettings.supportMultipleWindows = !settings.popupBlockingEnabled;
     initialSettings.verticalScrollbarThumbColor =
         const Color.fromRGBO(0, 0, 0, 0.5);
     initialSettings.horizontalScrollbarThumbColor =
@@ -181,6 +186,18 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
     initialSettings.isFraudulentWebsiteWarningEnabled = true;
     initialSettings.disableLongPressContextMenuOnLinks = true;
     initialSettings.allowingReadAccessTo = WebUri('file://$WEB_ARCHIVE_DIR/');
+
+    // Configure content blockers for ad blocking
+    if (settings.adBlockingEnabled ||
+        settings.trackingProtectionEnabled ||
+        settings.popupBlockingEnabled) {
+      initialSettings.contentBlockers =
+          AdBlockingService.generateContentBlockers(
+        adBlockingEnabled: settings.adBlockingEnabled,
+        trackingProtectionEnabled: settings.trackingProtectionEnabled,
+        popupBlockingEnabled: settings.popupBlockingEnabled,
+      );
+    }
 
     return InAppWebView(
       keepAlive: widget.webViewModel.keepAlive,
@@ -242,6 +259,23 @@ class _WebViewTabState extends State<WebViewTab> with WidgetsBindingObserver {
         }
 
         widget.webViewModel.title = await titleFuture;
+
+        // Inject ad blocking CSS and JavaScript if enabled
+        if (settings.adBlockingEnabled) {
+          try {
+            // Inject CSS to hide ad elements
+            await controller.injectCSSCode(
+                source: AdBlockingService.generateAdBlockingCSS());
+
+            // Inject JavaScript for enhanced ad blocking and popup prevention
+            await controller.evaluateJavascript(
+                source: AdBlockingService.generateAdBlockingJS());
+          } catch (e) {
+            if (kDebugMode) {
+              print('Error injecting ad blocking code: $e');
+            }
+          }
+        }
 
         List<Favicon>? favicons;
         try {
