@@ -22,6 +22,8 @@ class PopupMenuActions {
   // ignore: constant_identifier_names
   static const String FIND_ON_PAGE = "Find on page";
   // ignore: constant_identifier_names
+  static const String TRANSLATE = "Translate to German";
+  // ignore: constant_identifier_names
   static const String DESKTOP_MODE = "Desktop mode";
   // ignore: constant_identifier_names
   static const String SETTINGS = "Settings";
@@ -40,6 +42,7 @@ class PopupMenuActions {
         WEB_ARCHIVES,
         SHARE,
         FIND_ON_PAGE,
+        TRANSLATE,
         SETTINGS,
         DEVELOPERS,
         INAPPWEBVIEW_PROJECT
@@ -56,9 +59,10 @@ class PopupMenuActions {
       WEB_ARCHIVES,
       SHARE,
       FIND_ON_PAGE,
+      TRANSLATE,
       SETTINGS,
       DEVELOPERS,
       INAPPWEBVIEW_PROJECT
     ];
-}
+  }
 }

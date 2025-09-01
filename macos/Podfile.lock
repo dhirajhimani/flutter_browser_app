@@ -89,21 +89,21 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager_plus/macos
 
 SPEC CHECKSUMS:
-  dynamic_color: 2eaa27267de1ca20d879fbd6e01259773fb1670f
-  flutter_inappwebview_macos: bdf207b8f4ebd58e86ae06cd96b147de99a67c9b
+  dynamic_color: b820c000cc68df65e7ba7ff177cb98404ce56651
+  flutter_inappwebview_macos: c2d68649f9f8f1831bfcd98d73fd6256366d9d1d
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
-  multi_window_macos: dffe0ffd4274adcc78c8482323d3742fada1aed7
+  multi_window_macos: f9662ce418975e26ee0bdf2fbad032c146df7c59
   OrderedSet: e539b66b644ff081c73a262d24ad552a69be3a94
-  package_info_plus: fa739dd842b393193c5ca93c26798dff6e3d0e0c
-  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
-  screen_retriever_macos: 776e0fa5d42c6163d2bf772d22478df4b302b161
-  share_plus: 36537c04ce0c3e3f5bd297ce4318b6d5ee5fd6cf
-  sqflite_darwin: a553b1fd6fe66f53bbb0fe5b4f5bab93f08d7a13
+  package_info_plus: a8a591e70e87ce97ce5d21b2594f69cea9e0312f
+  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  screen_retriever_macos: 452e51764a9e1cdb74b3c541238795849f21557f
+  share_plus: 11c7b7fa7020465584eca3ff6392c5bc1e399d6e
+  sqflite_darwin: 44bb54cc302bff1fbe5752293aba1820b157cf1c
   sqlite3: 0bb0e6389d824e40296f531b858a2a0b71c0d2fb
-  sqlite3_flutter_libs: 5ca46c1a04eddfbeeb5b16566164aa7ad1616e7b
-  url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
-  window_manager_plus: 18e39c7256dbb1e9bbc810417a5506de91f7129b
+  sqlite3_flutter_libs: 03311aede9d32fb2d24e32bebb8cd01c3b2e6239
+  url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
+  window_manager_plus: e29fcf45a372b5312ad381ce5596a007994537ac
 
 PODFILE CHECKSUM: 236401fc2c932af29a9fcf0e97baeeb2d750d367
 
-COCOAPODS: 1.13.0
+COCOAPODS: 1.16.2
